@@ -5,7 +5,7 @@ import pandas as pd
 import datetime
 from sql_queries import *
 
-# add comment on function
+# Opens a song file and process the data into the song table and the artist table
 def process_song_file(cur, filepath):
     # open song file
     df = pd.read_json(filepath, lines=True)
@@ -19,7 +19,7 @@ def process_song_file(cur, filepath):
     artist_data = df.iloc[[0],[1,5,4,2,3]].values.tolist()[0]
     cur.execute(artist_table_insert, artist_data)
 
-# add comment on function
+# Opens a user log file and process the data into the time, user, and songplay tables
 def process_log_file(cur, filepath):
     # open log file
     df = pd.read_json(filepath, lines=True)
@@ -68,7 +68,7 @@ def process_log_file(cur, filepath):
         songplay_data = (row.ts, row.userId, row.level, songid, artistid, row.sessionId, row.location, row.userAgent)
         cur.execute(songplay_table_insert, songplay_data)
 
-# add comment on function
+# Gets the file extensions of the appropriate given data files extracted from the data.tar
 def process_data(cur, conn, filepath, func):
     # get all files matching extension from directory
     all_files = []
