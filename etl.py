@@ -5,8 +5,13 @@ import pandas as pd
 import datetime
 from sql_queries import *
 
-# Opens a song file and process the data into the song table and the artist table
+
 def process_song_file(cur, filepath):
+    """
+    - Access a song file and imports data to a dataframe
+    - Seperates data and loads specific values into the song and artist tables
+    """
+
     # open song file
     df = pd.read_json(filepath, lines=True)
     df = df.where(pd.notnull(df), None)
@@ -19,8 +24,14 @@ def process_song_file(cur, filepath):
     artist_data = df.iloc[[0],[1,5,4,2,3]].values.tolist()[0]
     cur.execute(artist_table_insert, artist_data)
 
-# Opens a user log file and process the data into the time, user, and songplay tables
+
 def process_log_file(cur, filepath):
+    """
+    - Access a user log file and imports data to a dataframe
+    - Transforms values of NextSong and ts 
+    - Loads specific values into the user, time, and songplay tables
+    """
+
     # open log file
     df = pd.read_json(filepath, lines=True)
     df = df.where(pd.notnull(df), None)
@@ -56,7 +67,7 @@ def process_log_file(cur, filepath):
     for index, row in df.iterrows():
         
         # get songid and artistid from song and artist tables
-        cur.execute(song_select, (row.song.replace("'", "''"), row.artist.replace("'", "''"), row.length))
+        cur.execute(song_select, (row.song, row.artist, row.length))
         results = cur.fetchone()
         
         if results:
@@ -68,8 +79,13 @@ def process_log_file(cur, filepath):
         songplay_data = (row.ts, row.userId, row.level, songid, artistid, row.sessionId, row.location, row.userAgent)
         cur.execute(songplay_table_insert, songplay_data)
 
-# Gets the file extensions of the appropriate given data files extracted from the data.tar
+
 def process_data(cur, conn, filepath, func):
+    """
+    - Goes through the file destinations designated for all song and user log files
+    - Runs the functions above acroos all the files in the directory
+    """
+
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -89,6 +105,12 @@ def process_data(cur, conn, filepath, func):
 
 
 def main():
+    """
+    - Connects to the Sparkify database
+    - Runs process_data function twice on the song files and user log files directories
+    - Lastly, closes the connection to the database
+    """
+
     conn = psycopg2.connect("host=localhost dbname=sparkifydb user=postgres password=1234")
     cur = conn.cursor()
 
