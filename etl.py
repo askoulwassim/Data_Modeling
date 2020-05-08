@@ -17,11 +17,11 @@ def process_song_file(cur, filepath):
     df = df.where(pd.notnull(df), None)
 
     # insert song record
-    song_data = df.iloc[[0],[6,7,1,9,8]].values.tolist()[0]
+    song_data = df[["song_id", "title", "artist_id", "year", "duration"]].values[0].tolist()
     cur.execute(song_table_insert, song_data)
     
     # insert artist record
-    artist_data = df.iloc[[0],[1,5,4,2,3]].values.tolist()[0]
+    artist_data = df[["artist_id", "artist_name", "artist_location", "artist_latitude", "artist_longitude"]].values[0].tolist()
     cur.execute(artist_table_insert, artist_data)
 
 
@@ -57,7 +57,7 @@ def process_log_file(cur, filepath):
         cur.execute(time_table_insert, list(row))
 
     # load user table
-    user_df = df.iloc[[0],[-1,2,5,3,7]]
+    user_df = df[["userId", "firstName", "lastName", "gender", "level"]].iloc[[0]]
 
     # insert user records
     for i, row in user_df.iterrows():
